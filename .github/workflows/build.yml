@@ -9,6 +9,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -22,12 +25,19 @@ jobs:
       - name: Grant execute permission
         run: chmod +x gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew build shadowJar --no-daemon
+      - name: Build plugin
+        run: ./gradlew build
 
-      - name: Upload Jar
-        uses: actions/upload-artifact@v4
+      - name: Get version from Gradle
+        id: version
+        run: echo "VERSION=$(./gradlew -q printVersion)" >> $GITHUB_OUTPUT
+
+      - name: Rename jar
+        run: |
+          mkdir output
+          cp build/libs/*.jar output/SayanVanish-${{ steps.version.outputs.VERSION }}.jar
+
+      - name: Upload Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: Plugin-Jar
-          path: |
-            build/libs/*.jar
+          files: output/*.jar
