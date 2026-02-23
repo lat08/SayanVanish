@@ -28,16 +28,14 @@ jobs:
       - name: Build plugin
         run: ./gradlew build
 
-      - name: Get version from Gradle
-        id: version
-        run: echo "VERSION=$(./gradlew -q printVersion)" >> $GITHUB_OUTPUT
-
-      - name: Rename jar
-        run: |
-          mkdir output
-          cp build/libs/*.jar output/SayanVanish-${{ steps.version.outputs.VERSION }}.jar
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SayanVanish-Jars
+          path: bin/*.jar
 
       - name: Upload Release
         uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: output/*.jar
+          files: bin/*.jar
