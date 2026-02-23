@@ -1,0 +1,33 @@
+name: Build Plugin Jar
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Grant execute permission
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build shadowJar --no-daemon
+
+      - name: Upload Jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: Plugin-Jar
+          path: |
+            build/libs/*.jar
